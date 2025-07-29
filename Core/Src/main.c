@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "max6675.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -101,19 +102,18 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  LL_GPIO_TogglePin(GPIOA, LL_GPIO_PIN_8);
-	  volatile uint64_t counter = 0;
-	  while (counter < 32000000) {
-		  counter++;
-	  }
+	  uint16_t raw_data = max6675_read_raw_data(SPI1, MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
+	  volatile float temp = max6675_convert_to_temperature(raw_data);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+
   }
   /* USER CODE END 3 */
 }
@@ -276,7 +276,7 @@ static void MX_SPI1_Init(void)
   SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
   SPI_InitStruct.ClockPhase = LL_SPI_PHASE_1EDGE;
   SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV2;
+  SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV8;
   SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
   SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
   SPI_InitStruct.CRCPoly = 7;
@@ -464,7 +464,7 @@ static void MX_GPIO_Init(void)
   LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
 
   /**/
-  LL_GPIO_ResetOutputPin(MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
+  LL_GPIO_SetOutputPin(MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
 
   /**/
   GPIO_InitStruct.Pin = MAX6675_CS_Pin_Pin;
