@@ -18,16 +18,12 @@ uint16_t max6675_read_raw_data(SPI_TypeDef *spi_type, GPIO_TypeDef *gpio_type_cs
 	LL_GPIO_ResetOutputPin(gpio_type_cs, cs_pin_mask);
 	 LL_SPI_Enable(SPI1);
 
-	// when empty transmit
-	//while (!LL_SPI_IsActiveFlag_TXE(spi_type));
-	//LL_SPI_TransmitData8(spi_type, 0);
+
 
 	// wait until there is smth to read
 	while(!LL_SPI_IsActiveFlag_RXNE(spi_type));
 	first_byte = LL_SPI_ReceiveData8(spi_type);
 
-	//while (!LL_SPI_IsActiveFlag_TXE(spi_type));
-	//LL_SPI_TransmitData8(spi_type, 0x00);
 
 	while(!LL_SPI_IsActiveFlag_RXNE(spi_type));
 	second_byte = LL_SPI_ReceiveData8(spi_type);
