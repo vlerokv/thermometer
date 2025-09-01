@@ -26,8 +26,6 @@ typedef enum {
 typedef struct {
 	uint16_t CurrentX;
 	uint16_t CurrentY;
-	uint8_t Inverted;
-	uint8_t Initialized;
 } SSD1306_t;
 
 
@@ -36,5 +34,6 @@ void ssd1306_write_command(uint8_t command);
 uint8_t ssd1306_init(void);
 void ssd1306_fill_buffer_with_color(SSD1306_COLOR color);
 void ssd1306_update_screen(void);
+void ssd1306_draw_pixel(uint8_t x, uint8_t y);
 #endif /* INC_OLED_H_ */
 

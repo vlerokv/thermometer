@@ -17,8 +17,11 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <stdint.h>
 #include "main.h"
 #include "max6675.h"
+#include "oled.h"
+#include "font.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -98,8 +101,9 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART1_UART_Init();
     MX_USART2_UART_Init();
-    /* USER CODE BEGIN 2 */
 
+    /* USER CODE BEGIN 2 */
+    ssd1306_init();
     /* USER CODE END 2 */
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -115,6 +119,10 @@ int main(void) {
         {
             //message on oled display if thermocouple isn't connected
         }
+
+        int index = find_char('2');
+        ssd1306_draw_char(index, FONT, 10, 20);
+        ssd1306_update_screen();
 
         /* USER CODE END WHILE */
 
