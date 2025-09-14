@@ -108,8 +108,10 @@ void ssd1306_draw_pixel(uint8_t x, uint8_t y)
 	SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
 }
 
-void ssd1306_draw_char(int index, const uint8_t font[], uint8_t X, uint8_t Y)
+void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y)
 {
+    int index = find_char(ch);
+
     if ((index < 0) || (index > SPECIAL_FONT_COUNT))
         return;
 

@@ -120,8 +120,7 @@ int main(void) {
             //message on oled display if thermocouple isn't connected
         }
 
-        int index = find_char('2');
-        ssd1306_draw_char(index, FONT, 10, 20);
+        ssd1306_draw_char('2', FONT, 10, 20);
         ssd1306_update_screen();
 
         /* USER CODE END WHILE */
