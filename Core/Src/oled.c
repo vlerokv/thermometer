@@ -119,14 +119,12 @@ void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y)
     uint8_t font_width = font[1];
     uint8_t font_height = font[2];
     uint8_t bytes_per_column = font[3];
-
     uint8_t* glyph = (uint8_t*)&font[(index * char_size) + 4];
 
     for (int j = 0; j < font_height; j++)
     {
         for (int i = 0; i < font_width; i++)
         {
-
             uint8_t column_data = glyph[bytes_per_column * i + ((j & 0xF8) >> 3) + 1];
             uint8_t bitmask = 1 << (j & 0x07);
 
@@ -136,4 +134,22 @@ void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y)
             }
         }
     }
+
+    SSD1306.CurrentX += font_width + 1;
 }
+
+void ssd1306_draw_string(const char* str, const uint8_t font[], uint8_t X, uint8_t Y)
+{
+    while(*str)
+    {
+        ssd1306_draw_char(*str, font, X, Y);
+        str++;
+    }
+}
+
+void ssd1306_set_cursor(uint16_t x, uint16_t y)
+{
+    SSD1306.CurrentX = x;
+    SSD1306.CurrentY = y;
+}
+
