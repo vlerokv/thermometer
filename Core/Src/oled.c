@@ -11,8 +11,6 @@
 
 static uint8_t SSD1306_Buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 
-static SSD1306_t SSD1306;
-
 void I2C2_write_bytes_to_addr(I2C_TypeDef *I2Cx, uint8_t control_byte ,uint8_t *buf, uint16_t bytes_count)
 {
 	LL_I2C_HandleTransfer(I2Cx, SSD1306_I2C_ADDR << 1, LL_I2C_ADDRSLAVE_7BIT, 1 + bytes_count, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
@@ -45,7 +43,6 @@ uint8_t ssd1306_init(void)
 	/* Init LCD */
 	ssd1306_write_command(0xAE); //display off
 	ssd1306_write_command(0x20); //Set Memory Addressing Mode
-	//ssd1306_write_command(0x00);
 	ssd1306_write_command(0x10); //00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
 	ssd1306_write_command(0xB0); //Set Page Start Address for Page Addressing Mode,0-7
 	ssd1306_write_command(0xC8); //Set COM Output Scan Direction
@@ -58,7 +55,6 @@ uint8_t ssd1306_init(void)
 	ssd1306_write_command(0xA6); //--set normal display
 	ssd1306_write_command(0xA8); //--set multiplex ratio(1 to 64)
 	ssd1306_write_command(0x3F); //--- height 64
-	//ssd1306_write_command(0x1F); // --- height 32
 	ssd1306_write_command(0xA4); //0xa4,Output follows RAM content;0xa5,Output ignores RAM content
 	ssd1306_write_command(0xD3); //-set display offset
 	ssd1306_write_command(0x00); //-not offset
@@ -68,7 +64,6 @@ uint8_t ssd1306_init(void)
 	ssd1306_write_command(0x22); //
 	ssd1306_write_command(0xDA); //--set com pins hardware configuration
 	ssd1306_write_command(0x12); // -- height 64
-	//ssd1306_write_command(0x02); // -- height 32
 	ssd1306_write_command(0xDB); //--set vcomh
 	ssd1306_write_command(0x20); //0x20,0.77xVcc
 	ssd1306_write_command(0x8D); //--set DC-DC enable
@@ -127,29 +122,23 @@ void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y)
         {
             uint8_t column_data = glyph[bytes_per_column * i + ((j & 0xF8) >> 3) + 1];
             uint8_t bitmask = 1 << (j & 0x07);
-
             if ((column_data & bitmask) != 0x00)
             {
             	ssd1306_draw_pixel(X + i, Y + j);
             }
         }
     }
-
-    SSD1306.CurrentX += font_width + 1;
 }
 
 void ssd1306_draw_string(const char* str, const uint8_t font[], uint8_t X, uint8_t Y)
 {
+    uint8_t font_width = font[1];
     while(*str)
     {
         ssd1306_draw_char(*str, font, X, Y);
+        X += font_width + 1;
         str++;
     }
 }
 
-void ssd1306_set_cursor(uint16_t x, uint16_t y)
-{
-    SSD1306.CurrentX = x;
-    SSD1306.CurrentY = y;
-}
 

@@ -4,7 +4,6 @@
  *  Created on: Jul 31, 2025
  *      Author: misch
  */
-
 #ifndef INC_OLED_H_
 #define INC_OLED_H_
 
@@ -21,11 +20,6 @@ typedef enum {
     White = 0x01
 } SSD1306_COLOR;
 
-typedef struct {
-	uint16_t CurrentX;
-	uint16_t CurrentY;
-} SSD1306_t;
-
 void I2C2_write_bytes_to_addr (I2C_TypeDef *I2Cx, uint8_t control_byte ,uint8_t *buf, uint16_t bytes_count);
 void ssd1306_write_command(uint8_t command);
 uint8_t ssd1306_init(void);
@@ -33,7 +27,6 @@ void ssd1306_fill_buffer_with_color(SSD1306_COLOR color);
 void ssd1306_update_screen(void);
 void ssd1306_draw_pixel(uint8_t x, uint8_t y);
 void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y);
-void ssd1306_set_cursor(uint16_t x, uint16_t y);
 void ssd1306_draw_string(const char* str, const uint8_t font[], uint8_t X, uint8_t Y);
 #endif /* INC_OLED_H_ */
 
