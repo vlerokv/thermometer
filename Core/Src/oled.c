@@ -6,12 +6,13 @@
  */
 #include <oled.h>
 #include <font.h>
+#include <stddef.h>
 #include "stm32g0xx_ll_i2c.h"
-#include "font.h"
+#include "stm32g0xx_ll_utils.h"
 
-static uint8_t SSD1306_Buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
+static uint8_t SSD1306_buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
 
-void I2C2_write_bytes_to_addr(I2C_TypeDef *I2Cx, uint8_t control_byte ,uint8_t *buf, uint16_t bytes_count)
+static void I2C2_write_bytes_to_addr(I2C_TypeDef *I2Cx, uint8_t control_byte ,uint8_t *buf, uint16_t bytes_count)
 {
 	LL_I2C_HandleTransfer(I2Cx, SSD1306_I2C_ADDR << 1, LL_I2C_ADDRSLAVE_7BIT, 1 + bytes_count, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
 
@@ -30,12 +31,12 @@ void I2C2_write_bytes_to_addr(I2C_TypeDef *I2Cx, uint8_t control_byte ,uint8_t *
     LL_I2C_ClearFlag_STOP(I2Cx);
 }
 
-void ssd1306_write_command(uint8_t command)
+static void ssd1306_write_command(uint8_t command)
 {
-	I2C2_write_bytes_to_addr (I2C2, 0x00, &command, 1);
+	I2C2_write_bytes_to_addr(I2C2, SSD1306_CONTROL_BYTE_CMD, &command, 1);
 }
 
-uint8_t ssd1306_init(void)
+void ssd1306_init(void)
 {
 	// Wait for the screen to boot
 	LL_mDelay(100);
@@ -72,24 +73,24 @@ uint8_t ssd1306_init(void)
 
 	ssd1306_fill_buffer_with_color(Black);
 	ssd1306_update_screen();
-	return 1;
 }
 
 void ssd1306_fill_buffer_with_color(SSD1306_COLOR color)
 {
-	for(uint32_t i = 0; i < sizeof(SSD1306_Buffer); i++)
+	for(uint32_t i = 0; i < sizeof(SSD1306_buffer); i++)
 	{
-		SSD1306_Buffer[i] = (color == Black) ? 0x00 : 0xFF;
+	    SSD1306_buffer[i] = (color == Black) ? 0x00 : 0xFF;
 	}
 }
 
 void ssd1306_update_screen(void)
 {
-	for (uint8_t i = 0; i < 8; i++) {
+	for (uint8_t i = 0; i < 8; i++)
+	{
 		ssd1306_write_command(0xB0 + i);
 		ssd1306_write_command(0x00);
 		ssd1306_write_command(0x10);
-		I2C2_write_bytes_to_addr(I2C2, 0x40, &SSD1306_Buffer[SSD1306_WIDTH * i], SSD1306_WIDTH);
+		I2C2_write_bytes_to_addr(I2C2, SSD1306_CONTROL_BYTE_DATA, &SSD1306_buffer[SSD1306_WIDTH * i], SSD1306_WIDTH);
 	}
 }
 
@@ -100,43 +101,45 @@ void ssd1306_draw_pixel(uint8_t x, uint8_t y)
 		return;
 	}
 
-	SSD1306_Buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
+	SSD1306_buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
 }
 
-void ssd1306_draw_char(char ch, const uint8_t font[], uint8_t X, uint8_t Y)
+void ssd1306_draw_char(const font_t *font, char ch, uint8_t x, uint8_t y)
 {
-    int index = find_char(ch);
+    uint8_t font_width = font_get_width(font);
+    uint8_t font_height = font_get_height(font);
+    uint8_t bytes_per_line = font_get_bytes_per_line(font);
 
-    if ((index < 0) || (index > SPECIAL_FONT_COUNT))
-        return;
+    const uint8_t* glyph = font_get_glyph(font, ch);
 
-    uint8_t char_size = font[0];
-    uint8_t font_width = font[1];
-    uint8_t font_height = font[2];
-    uint8_t bytes_per_column = font[3];
-    uint8_t* glyph = (uint8_t*)&font[(index * char_size) + 4];
-
-    for (int j = 0; j < font_height; j++)
+    if (glyph == NULL)
     {
-        for (int i = 0; i < font_width; i++)
+        return;
+    }
+
+    for (uint8_t j = 0; j < font_height; j++)
+    {
+        for (uint8_t i = 0; i < font_width; i++)
         {
-            uint8_t column_data = glyph[bytes_per_column * i + ((j & 0xF8) >> 3) + 1];
+            uint8_t column_data = glyph[bytes_per_line * i + ((j & 0xF8) >> 3) + 1];
             uint8_t bitmask = 1 << (j & 0x07);
+
             if ((column_data & bitmask) != 0x00)
             {
-            	ssd1306_draw_pixel(X + i, Y + j);
+            	ssd1306_draw_pixel(x + i, y + j);
             }
         }
     }
 }
 
-void ssd1306_draw_string(const char* str, const uint8_t font[], uint8_t X, uint8_t Y)
+void ssd1306_draw_string(const font_t *font, const char* str, uint8_t x, uint8_t y)
 {
-    uint8_t font_width = font[1];
+    uint8_t font_width = font_get_width(font);
+
     while(*str)
     {
-        ssd1306_draw_char(*str, font, X, Y);
-        X += font_width + 1;
+        ssd1306_draw_char(font, *str, x, y);
+        x += font_width + 1;
         str++;
     }
 }

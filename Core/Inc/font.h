@@ -10,12 +10,32 @@
 
 #include <stdint.h>
 
-#define FONT special_font_7x13
-#define SPECIAL_FONT_COUNT 18
+#define FONT_GLYPH_SIZE_BYTES 49
 
-extern const uint8_t special_font_7x13[];
-extern const char special_font_chars[];
+typedef enum
+{
+    FONT_SPECIAL_7x13,
+} font_e;
 
-int find_char(char ch);
+typedef struct
+{
+    char symbol;
+    uint8_t glyph[FONT_GLYPH_SIZE_BYTES];
+} font_glyph_t;
 
+typedef struct
+{
+    uint8_t glyph_width;
+    uint8_t glyph_height;
+    uint8_t bytes_per_line;
+    uint8_t glyph_count;
+    const font_glyph_t* glyphs;
+} font_t;
+
+const uint8_t* font_get_glyph(const font_t *font, char ch);
+uint8_t font_get_width(const font_t* font);
+uint8_t font_get_height(const font_t *font);
+uint8_t font_get_bytes_per_line(const font_t* font);
+uint8_t font_get_glyph_count(const font_t* font);
+const font_t* font_get_special_7x13(void);
 #endif /* INC_FONT_H_ */
