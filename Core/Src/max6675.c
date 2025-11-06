@@ -10,14 +10,18 @@
 #include "stm32g0xx_ll_spi.h"
 #include "stm32g0xx_ll_bus.h"
 
-uint16_t max6675_read_raw_data(SPI_TypeDef *spi_type, GPIO_TypeDef *gpio_type_cs, uint32_t cs_pin_mask) {
+uint16_t max6675_read_raw_data(SPI_TypeDef *spi_type, GPIO_TypeDef *gpio_type_cs, uint32_t cs_pin_mask)
+{
     //LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_SPI1);
     LL_GPIO_ResetOutputPin(gpio_type_cs, cs_pin_mask);
     LL_SPI_Enable(spi_type);
 
+    LL_SPI_TransmitData8(spi_type, 0xFF);
     // wait until there is smth to read
     while (!LL_SPI_IsActiveFlag_RXNE(spi_type));
     uint8_t first_byte = LL_SPI_ReceiveData8(spi_type);
+
+    LL_SPI_TransmitData8(spi_type, 0xFF);
 
     while (!LL_SPI_IsActiveFlag_RXNE(spi_type));
     uint8_t second_byte = LL_SPI_ReceiveData8(spi_type);
@@ -29,11 +33,13 @@ uint16_t max6675_read_raw_data(SPI_TypeDef *spi_type, GPIO_TypeDef *gpio_type_cs
     return (first_byte << 8) | second_byte;
 }
 
-bool max6675_is_thermocouple_connected(uint16_t raw_data) {
+bool max6675_is_thermocouple_connected(uint16_t raw_data)
+{
     return !(raw_data & (1 << 2));
 }
 
-float max6675_convert_to_temperature(uint16_t raw_data) {
+float max6675_convert_to_temperature(uint16_t raw_data)
+{
     return ((raw_data >> 3) & 0x0FFF) * 0.25;
 }
 
