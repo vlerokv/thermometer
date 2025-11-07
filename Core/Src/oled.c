@@ -104,6 +104,16 @@ void ssd1306_draw_pixel(uint8_t x, uint8_t y)
 	SSD1306_buffer[x + (y / 8) * SSD1306_WIDTH] |= 1 << (y % 8);
 }
 
+void ssd1306_reset_pixel(uint8_t x, uint8_t y)
+{
+    if (x >= SSD1306_WIDTH || y >= SSD1306_HEIGHT)
+    {
+        return;
+    }
+
+    SSD1306_buffer[x + (y / 8) * SSD1306_WIDTH] &= ~(1 << (y % 8));
+}
+
 void ssd1306_draw_char(const font_t *font, char ch, uint8_t x, uint8_t y)
 {
     uint8_t font_width = font_get_width(font);
@@ -128,6 +138,10 @@ void ssd1306_draw_char(const font_t *font, char ch, uint8_t x, uint8_t y)
             {
             	ssd1306_draw_pixel(x + i, y + j);
             }
+            else {
+            	ssd1306_reset_pixel(x + i, y + j);
+
+            }
         }
     }
 }
@@ -136,7 +150,7 @@ void ssd1306_draw_string(const font_t *font, const char* str, uint8_t x, uint8_t
 {
     uint8_t font_width = font_get_width(font);
 
-    while(*str)
+    while (*str)
     {
         ssd1306_draw_char(font, *str, x, y);
         x += font_width + 1;
