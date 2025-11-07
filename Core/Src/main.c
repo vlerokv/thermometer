@@ -17,14 +17,13 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <stdint.h>
 #include "main.h"
-#include "max6675.h"
-#include "oled.h"
-#include "font.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "oled.h"
+#include "max6675.h"
 
 /* USER CODE END Includes */
 
@@ -69,7 +68,8 @@ static void MX_USART2_UART_Init(void);
  * @brief  The application entry point.
  * @retval int
  */
-int main(void) {
+int main(void)
+{
 
     /* USER CODE BEGIN 1 */
 
@@ -101,10 +101,11 @@ int main(void) {
     MX_SPI1_Init();
     MX_USART1_UART_Init();
     MX_USART2_UART_Init();
-
     /* USER CODE BEGIN 2 */
     ssd1306_init();
+    char buffer[10];
     /* USER CODE END 2 */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -114,13 +115,16 @@ int main(void) {
         if (max6675_is_thermocouple_connected(raw_data))
         {
             volatile float temp = max6675_convert_to_temperature(raw_data);
+            int16_t temp_int = (int16_t) temp;
+            sprintf(buffer, "T:%d", temp_int);
         }
         else
         {
+            sprintf(buffer, "eee");
             //message on oled display if thermocouple isn't connected
         }
 
-        ssd1306_draw_string(font_get_special_7x13(), "T:182", 10, 15);
+        ssd1306_draw_string(font_get_special_7x13(), buffer, 10, 15);
         ssd1306_draw_string(font_get_special_7x13(), "T:180", 10, 35);
 
         ssd1306_update_screen();
@@ -137,22 +141,26 @@ int main(void) {
  * @brief System Clock Configuration
  * @retval None
  */
-void SystemClock_Config(void) {
+void SystemClock_Config(void)
+{
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
-    while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1) {
+    while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
+    {
     }
 
     /* HSI configuration and activation */
     LL_RCC_HSI_Enable();
-    while (LL_RCC_HSI_IsReady() != 1) {
+    while (LL_RCC_HSI_IsReady() != 1)
+    {
     }
 
     /* Main PLL configuration and activation */
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8,
-                    LL_RCC_PLLR_DIV_4);
+    LL_RCC_PLLR_DIV_4);
     LL_RCC_PLL_Enable();
     LL_RCC_PLL_EnableDomain_SYS();
-    while (LL_RCC_PLL_IsReady() != 1) {
+    while (LL_RCC_PLL_IsReady() != 1)
+    {
     }
 
     /* Set AHB prescaler*/
@@ -160,7 +168,8 @@ void SystemClock_Config(void) {
 
     /* Sysclk activation on the main PLL */
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-    while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {
+    while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
+    {
     }
 
     /* Set APB1 prescaler*/
@@ -177,7 +186,8 @@ void SystemClock_Config(void) {
  * @param None
  * @retval None
  */
-static void MX_I2C2_Init(void) {
+static void MX_I2C2_Init(void)
+{
 
     /* USER CODE BEGIN I2C2_Init 0 */
 
@@ -241,7 +251,8 @@ static void MX_I2C2_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_SPI1_Init(void) {
+static void MX_SPI1_Init(void)
+{
 
     /* USER CODE BEGIN SPI1_Init 0 */
 
@@ -258,6 +269,7 @@ static void MX_SPI1_Init(void) {
     /**SPI1 GPIO Configuration
      PA5   ------> SPI1_SCK
      PA6   ------> SPI1_MISO
+     PA7   ------> SPI1_MOSI
      */
     GPIO_InitStruct.Pin = LL_GPIO_PIN_5;
     GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
@@ -279,7 +291,7 @@ static void MX_SPI1_Init(void) {
 
     /* USER CODE END SPI1_Init 1 */
     /* SPI1 parameter configuration*/
-    SPI_InitStruct.TransferDirection = LL_SPI_SIMPLEX_RX;
+    SPI_InitStruct.TransferDirection = LL_SPI_FULL_DUPLEX;
     SPI_InitStruct.Mode = LL_SPI_MODE_MASTER;
     SPI_InitStruct.DataWidth = LL_SPI_DATAWIDTH_8BIT;
     SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_LOW;
@@ -303,7 +315,8 @@ static void MX_SPI1_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USART1_UART_Init(void) {
+static void MX_USART1_UART_Init(void)
+{
 
     /* USER CODE BEGIN USART1_Init 0 */
 
@@ -364,7 +377,8 @@ static void MX_USART1_UART_Init(void) {
 
     /* Polling USART1 initialisation */
     while ((!(LL_USART_IsActiveFlag_TEACK(USART1)))
-                    || (!(LL_USART_IsActiveFlag_REACK(USART1)))) {
+                    || (!(LL_USART_IsActiveFlag_REACK(USART1))))
+    {
     }
     /* USER CODE BEGIN USART1_Init 2 */
 
@@ -377,7 +391,8 @@ static void MX_USART1_UART_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_USART2_UART_Init(void) {
+static void MX_USART2_UART_Init(void)
+{
 
     /* USER CODE BEGIN USART2_Init 0 */
 
@@ -446,7 +461,8 @@ static void MX_USART2_UART_Init(void) {
 
     /* Polling USART2 initialisation */
     while ((!(LL_USART_IsActiveFlag_TEACK(USART2)))
-                    || (!(LL_USART_IsActiveFlag_REACK(USART2)))) {
+                    || (!(LL_USART_IsActiveFlag_REACK(USART2))))
+    {
     }
     /* USER CODE BEGIN USART2_Init 2 */
 
@@ -459,7 +475,8 @@ static void MX_USART2_UART_Init(void) {
  * @param None
  * @retval None
  */
-static void MX_GPIO_Init(void) {
+static void MX_GPIO_Init(void)
+{
     LL_GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     /* USER CODE BEGIN MX_GPIO_Init_1 */
 
@@ -470,7 +487,7 @@ static void MX_GPIO_Init(void) {
     LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
 
     /**/
-    LL_GPIO_SetOutputPin(MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
+    LL_GPIO_ResetOutputPin(MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
 
     /**/
     GPIO_InitStruct.Pin = MAX6675_CS_Pin_Pin;
@@ -493,11 +510,13 @@ static void MX_GPIO_Init(void) {
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+void Error_Handler(void)
+{
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state */
     __disable_irq();
-    while (1) {
+    while (1)
+    {
     }
     /* USER CODE END Error_Handler_Debug */
 }
