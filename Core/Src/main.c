@@ -21,6 +21,7 @@
 #include "max6675.h"
 #include "oled.h"
 #include "font.h"
+#include "system_time.h"
 #include "stm32g0xx_ll_cortex.h"
 #include "system_stm32g0xx.h"
 #include <stdio.h>
@@ -117,6 +118,7 @@ int main(void)
     __enable_irq();
     while (1)
     {
+        uint32_t now = get_system_time();
         uint16_t raw_data = max6675_read_raw_data(SPI1, MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
 
         if (max6675_is_thermocouple_connected(raw_data))
@@ -131,9 +133,14 @@ int main(void)
             //message on oled display if thermocouple isn't connected
         }
 
-        ssd1306_draw_string(font_get_special_7x13(), buffer, 10, 15);
+        if (now - screen_update_interval >= last_screen_update)
+        {
+            ssd1306_draw_string(font_get_special_7x13(), buffer, 10, 15);
+            ssd1306_draw_string(font_get_special_7x13(), "T:180", 10, 35);
+            ssd1306_update_screen();
 
-        ssd1306_update_screen();
+            last_screen_update = now;
+        }
 
         /* USER CODE END WHILE */
 

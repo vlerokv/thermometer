@@ -122,11 +122,10 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
-static volatile uint32_t systick_count = 0;
 
 void SysTick_Handler(void)
 {
-    systick_count++;
+    system_time_increment();
 }
 
 /******************************************************************************/
