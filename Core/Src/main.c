@@ -18,13 +18,16 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "max6675.h"
+#include "oled.h"
+#include "font.h"
+#include "stm32g0xx_ll_cortex.h"
+#include "system_stm32g0xx.h"
+#include <stdio.h>
+#include <string.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include <string.h>
-#include "oled.h"
-#include "max6675.h"
 
 /* USER CODE END Includes */
 
@@ -46,7 +49,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+static uint32_t last_screen_update = 0;
+const uint32_t screen_update_interval = 1000;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -93,7 +97,8 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    SysTick_Config(SystemCoreClock / 1000);
+    LL_SYSTICK_EnableIT();
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -109,6 +114,7 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    __enable_irq();
     while (1)
     {
         uint16_t raw_data = max6675_read_raw_data(SPI1, MAX6675_CS_Pin_GPIO_Port, MAX6675_CS_Pin_Pin);
@@ -126,7 +132,6 @@ int main(void)
         }
 
         ssd1306_draw_string(font_get_special_7x13(), buffer, 10, 15);
-        ssd1306_draw_string(font_get_special_7x13(), "T:180", 10, 35);
 
         ssd1306_update_screen();
 
