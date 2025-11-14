@@ -24,6 +24,7 @@
 #include "system_time.h"
 #include "stm32g0xx_ll_cortex.h"
 #include "system_stm32g0xx.h"
+#include"stm32g0xx_it.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -51,7 +52,7 @@
 
 /* USER CODE BEGIN PV */
 static uint32_t last_screen_update = 0;
-const uint32_t screen_update_interval = 1000;
+static const uint32_t screen_update_interval = 1000;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
