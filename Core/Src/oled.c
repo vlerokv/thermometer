@@ -138,9 +138,9 @@ void ssd1306_draw_char(const font_t *font, char ch, uint8_t x, uint8_t y)
             {
             	ssd1306_draw_pixel(x + i, y + j);
             }
-            else {
+            else
+            {
             	ssd1306_reset_pixel(x + i, y + j);
-
             }
         }
     }

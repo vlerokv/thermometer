@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <string.h>
 #include "oled.h"
 #include "max6675.h"
 
@@ -34,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define OLED_BUFFER_SIZE  10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -103,7 +104,7 @@ int main(void)
     MX_USART2_UART_Init();
     /* USER CODE BEGIN 2 */
     ssd1306_init();
-    char buffer[10];
+    char buffer[OLED_BUFFER_SIZE];
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -116,11 +117,11 @@ int main(void)
         {
             volatile float temp = max6675_convert_to_temperature(raw_data);
             int16_t temp_int = (int16_t) temp;
-            sprintf(buffer, "T:%d", temp_int);
+            snprintf(buffer, OLED_BUFFER_SIZE, "T:%d", temp_int);
         }
         else
         {
-            sprintf(buffer, "eee");
+            strcpy(buffer, "eee");
             //message on oled display if thermocouple isn't connected
         }
 
@@ -155,8 +156,7 @@ void SystemClock_Config(void)
     }
 
     /* Main PLL configuration and activation */
-    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8,
-    LL_RCC_PLLR_DIV_4);
+    LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_4);
     LL_RCC_PLL_Enable();
     LL_RCC_PLL_EnableDomain_SYS();
     while (LL_RCC_PLL_IsReady() != 1)
@@ -376,8 +376,7 @@ static void MX_USART1_UART_Init(void)
     LL_USART_Enable(USART1);
 
     /* Polling USART1 initialisation */
-    while ((!(LL_USART_IsActiveFlag_TEACK(USART1)))
-                    || (!(LL_USART_IsActiveFlag_REACK(USART1))))
+    while ((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1))))
     {
     }
     /* USER CODE BEGIN USART1_Init 2 */
@@ -460,8 +459,7 @@ static void MX_USART2_UART_Init(void)
     LL_USART_Enable(USART2);
 
     /* Polling USART2 initialisation */
-    while ((!(LL_USART_IsActiveFlag_TEACK(USART2)))
-                    || (!(LL_USART_IsActiveFlag_REACK(USART2))))
+    while ((!(LL_USART_IsActiveFlag_TEACK(USART2))) || (!(LL_USART_IsActiveFlag_REACK(USART2))))
     {
     }
     /* USER CODE BEGIN USART2_Init 2 */
