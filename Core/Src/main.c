@@ -24,7 +24,6 @@
 #include "system_time.h"
 #include "stm32g0xx_ll_cortex.h"
 #include "system_stm32g0xx.h"
-#include"stm32g0xx_it.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -52,7 +51,7 @@
 
 /* USER CODE BEGIN PV */
 static uint32_t last_screen_update = 0;
-static const uint32_t screen_update_interval = 1000;
+static const uint32_t screen_update_interval = 500;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -136,6 +135,7 @@ int main(void)
 
         if (now - screen_update_interval >= last_screen_update)
         {
+            LL_mDelay(100);
             ssd1306_draw_string(font_get_special_7x13(), buffer, 10, 15);
             ssd1306_draw_string(font_get_special_7x13(), "T:180", 10, 35);
             ssd1306_update_screen();
